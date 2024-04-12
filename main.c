@@ -61,7 +61,7 @@ void render_pixels(t_fractol *fractol) {
   int i = 0;
   int x = 0;
   int y = 0;
-  mlx_clear_window(fractol->mlx, fractol->mlx_win);
+  //mlx_clear_window(fractol->mlx, fractol->mlx_win);
   while (i < WIDTH * HEIGHT) {
     x = i / HEIGHT;
     y = i % HEIGHT;
