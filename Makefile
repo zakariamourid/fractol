@@ -4,7 +4,7 @@ SOURCES = main.c
 
 OBJECTS = $(subst .c,.o,$(SOURCES))
 
-FLAGS = -Wall -Wextra #-Werror
+FLAGS = -Wall -Wextra -O3 #-Werror 
 LINKS = -I /usr/local/include -L /usr/local/lib \
 		-l mlx  -framework OpenGL -framework Appkit
 

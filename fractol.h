@@ -7,7 +7,7 @@
 #define WIDTH 900
 #define HEIGHT 900
 #define TILE_SIZE 50
-#define MAX_ITERATIONS 200
+#define MAX_ITERATIONS 50
 
 typedef struct s_complex {
   double r;

@@ -1,6 +1,7 @@
 
 #include "fractol.h"
 #include <stdlib.h>
+
 // f(z) == z**2 + c ;
 // (x + yi) * (x +yi) == x*x + xyi + xyi - y*y
 // x*x - y*y + 2xyi ==> a = x*x - y*y; b = 2xy;
@@ -15,19 +16,23 @@ void my_mlx_pixel_put(t_img *data, int x, int y, int color) {
 }
 double ft_scale(double num, double new_min, double new_max, double old_min,
                 double old_max) {
-  return (new_max - new_min) * (num - old_min) / (old_max - old_min) + new_min;
+  return ((new_max - new_min) * (num - old_min) / (old_max - old_min) +
+          new_min);
 }
-t_fractol *get_fractol() {
+t_fractol *get_fractol(void) {
   static t_fractol fractol;
-  return &fractol;
+
+  return (&fractol);
 }
 
 void change_window_center(double *max_x, double *max_y, double *min_x,
                           double *min_y, double new_center_x,
                           double new_center_y) {
-  double width = *max_x - *min_x;
-  double height = *max_y - *min_y;
+  double width;
+  double height;
 
+  width = *max_x - *min_x;
+  height = *max_y - *min_y;
   *max_x = new_center_x + width / 2;
   *max_y = new_center_y + height / 2;
   *min_x = new_center_x - width / 2;
@@ -37,9 +42,15 @@ void change_window_center(double *max_x, double *max_y, double *min_x,
 int mandelbrot_fun(t_complex c) {
   t_complex z;
   t_complex tmp;
+  int max_i;
+
+  //z.r = c.r;
+  //z.i = c.i;
+  //c.r = 0.35;
+  //c.i = 0.35;
   z.r = 0;
   z.i = 0;
-  int max_i = get_fractol()->max_iter;
+  max_i = get_fractol()->max_iter;
   while (max_i > 0 &&
          z.r * z.r + z.i * z.i <
              4) // todo create a function and put this logic inside it
@@ -51,31 +62,39 @@ int mandelbrot_fun(t_complex c) {
     z.i = z.i + c.i;
     max_i--;
   }
-  if (max_i == 0)
-    return 0x00;
-  return ft_scale(get_fractol()->max_iter - max_i, 0x00000000, 0x00FFFFFF, 0,
-                  max_i);
+	if (max_i == 0)
+    return (0x00);
+	else
+  return (ft_scale(get_fractol()->max_iter - max_i, 0x00000000, 0x00FFFFFF, 0,
+                   max_i));
+
 }
 void render_pixels(t_fractol *fractol) {
   t_complex tmp;
-  int i = 0;
-  int x = 0;
-  int y = 0;
-  //mlx_clear_window(fractol->mlx, fractol->mlx_win);
+  int i;
+  int x;
+  int y;
+
+  i = 0;
+  x = 0;
+  y = 0;
+  // mlx_clear_window(fractol->mlx, fractol->mlx_win);
   while (i < WIDTH * HEIGHT) {
     x = i / HEIGHT;
     y = i % HEIGHT;
-    tmp.r = (ft_scale(x, -2, 2, 0, WIDTH * fractol->zoom) + fractol->shift_x);
-    tmp.i = (ft_scale(y, -2, 2, 0, HEIGHT * fractol->zoom) +
-             fractol->shift_y); // todo add shift_y
+    tmp.r = (ft_scale(x, -2, 0.47, 0, (WIDTH * fractol->zoom)) + fractol->shift_x);
+    tmp.i =
+        (ft_scale(y, -1.12, 1.12, 0, (HEIGHT * fractol->zoom)) + fractol->shift_y);
     my_mlx_pixel_put(&fractol->mlx_img, x, y, mandelbrot_fun(tmp));
     i++;
   }
   mlx_put_image_to_window(fractol->mlx, fractol->mlx_win, fractol->mlx_img.ptr,
                           0, 0);
 }
-void close_fract() {
+
+void close_fract(void) {
   t_fractol *fractol;
+
   fractol = get_fractol();
   if (fractol->mlx_img.ptr)
     mlx_destroy_image(fractol->mlx, fractol->mlx_img.ptr);
@@ -85,28 +104,30 @@ void close_fract() {
     free(fractol->mlx);
   exit(0);
 }
-int mouse_hook(int keycode, t_fractol *param) {
-  int x;
-  int y;
-  t_complex pos;
-  (void)param;
-  printf("the code clicked is = %d\n", keycode);
-  if (keycode == 1) {
-    mlx_mouse_get_pos(get_fractol()->mlx_win, &x, &y);
-    pos.r = ft_scale(x, -2, 2, 0, WIDTH);
-    pos.i = ft_scale(y, -2, 2, 0, HEIGHT);
-    printf("mouse === %d ,%d )", x, y);
-    printf("mousez === %f ,%f )", pos.r, y);
-  }
-  return 0;
-}
+// int mouse_hook(int keycode, t_fractol *param) {
+//   int x;
+//   int y;
+//   t_complex pos;
+//   (void)param;
+//   printf("the code clicked is = %d\n", keycode);
+//   if (keycode == 1) {
+//     mlx_mouse_get_pos(get_fractol()->mlx_win, &x, &y);
+//     pos.r = ft_scale(x, -2, 2, 0, WIDTH);
+//     pos.i = ft_scale(y, -2, 2, 0, HEIGHT);
+//     printf("mouse === %d ,%d )", x, y);
+//     printf("mousez === %f ,%f )", pos.r, y);
+//   }
+//   return (0);
+// }
 int key_hook(int keycode, void *param) {
-  printf("the code clicked is = %d\n", keycode);
-  t_fractol *fractol = param;
+  t_fractol *fractol;
   int x;
   int y;
+
+  printf("the code clicked is = %d\n", keycode);
+  fractol = param;
   if (keycode == 126 || keycode == 125 || keycode == 123 || keycode == 124 ||
-      keycode == 13 || keycode == 1) {
+      keycode == 13 || keycode == 1 || keycode == 0 || keycode == 2) {
     if (keycode == 126)
       get_fractol()->shift_y -= 0.5 / fractol->zoom;
     if (keycode == 125)
@@ -119,16 +140,27 @@ int key_hook(int keycode, void *param) {
       get_fractol()->zoom *= 1.05;
     if (keycode == 1)
       get_fractol()->zoom *= 0.95;
+    if (keycode == 0)
+		{
+			if(get_fractol()->max_iter != 10)
+				get_fractol()->max_iter -= 10;
+		}
+    if (keycode == 2)
+		{
+			if(get_fractol()->max_iter != 1000)
+				get_fractol()->max_iter += 10;
+		}
     printf("zoom == %f\n", get_fractol()->zoom);
     printf("shift-x == %f\n", get_fractol()->shift_x);
     render_pixels(fractol);
   }
   if (keycode == 53)
     close_fract();
-  return 0;
+  return (0);
 }
-int main() {
+int main(void) {
   t_fractol *fractol;
+
   fractol = get_fractol();
   fractol->zoom = 1;
   fractol->max_iter = MAX_ITERATIONS;
@@ -140,6 +172,6 @@ int main() {
       &fractol->mlx_img.line_length, &fractol->mlx_img.endian);
   render_pixels(fractol);
   mlx_key_hook(fractol->mlx_win, key_hook, fractol);
-  mlx_mouse_hook(fractol->mlx_win, mouse_hook, fractol);
+  // mlx_mouse_hook(fractol->mlx_win, mouse_hook, fractol);
   mlx_loop(fractol->mlx);
 }
