@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.embeddedhtml": "html",
-        "stdlib.h": "c",
-        "fractol.h": "c"
-    }
-}
